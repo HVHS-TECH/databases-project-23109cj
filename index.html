@@ -20,6 +20,15 @@
 
 </head>
 <body>
+  <form id="loginForm">
+      <label for="userName">Please choose a username:</label><br>
+      <input type="text" id="userName" name="userName" maxlength="20" /><br><br>
+
+      <label for="age">How old are you</label><br>
+      <input type="number" id="age" name="age" maxlength="3" required /><br>
+  </form>
+
+  <button onclick="fb_authenticate()">Login</button>
   <button onclick="window.location.href='planeGame.html'">Plane Game</button>
   <button onclick="window.location.href='geoDash.html'">Geo Dash</button>
 </body>

@@ -423,9 +423,7 @@ function drawEnd() {
 
     //-----------------------------------------
     //firebase write HERE
-    //-----------------------------------------
-    firebase.database().ref('planeGameHighscores/' + uid + '/score').set(score)
-
+    //----------------------------------------
 
 
 
