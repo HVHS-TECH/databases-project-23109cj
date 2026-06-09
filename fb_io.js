@@ -12,10 +12,10 @@ function fb_login(){
     let userName = document.getElementById('userName').value.trim();
     let age = document.getElementById('age').value.trim();
 
-    if(age == null || userName == null){
-        alert('Please ensure you have filled out all input fields')
-    } else{
+    if(age != null && userName != null){
         fb_authenticate(userName, age)
+    } else{
+        alert('Please ensure you have filled out all input fields')
     }
 }
 
@@ -49,13 +49,13 @@ function fb_authenticate(_userName, _age){
                 //document.getElementById('logout').innerHTML = `<button onclick="fb_logout()">Logout</button>`;
                 authentication();
                 
-                firebase.database().ref('/userInfo' + uid + '/userName').set(_userName)
+                firebase.database().ref('/userInfo/' + uid + '/userName').set(_userName)
                 firebase.database().ref('/userInfo/' + uid + '/uid').set(uid);
                 firebase.database().ref('/userInfo/' + uid + '/name').set(name);
                 firebase.database().ref('/userInfo/' + uid + '/photoURL').set(photoURL);
                 firebase.database().ref('/userInfo/' + uid + '/email').set(email);
                 firebase.database().ref('/userInfo/' + uid + '/phoneNumber').set(phoneNumber);
-                                firebase.database().ref('/userInfo/' + uid + '/age').set(_age);
+                firebase.database().ref('/userInfo/' + uid + '/age').set(_age);
 
 
 
