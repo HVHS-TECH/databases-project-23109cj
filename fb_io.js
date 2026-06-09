@@ -6,7 +6,7 @@
  **                                                          **
  **************************************************************
  **************************************************************/
-var canLogIn = true;
+let canLogIn = true;
 
 function fb_login(){
     let userName = document.getElementById('userName').value.trim();
@@ -40,6 +40,7 @@ function fb_authenticate(_userName, _age){
                 // User is signed in, see docs for a list of available properties
                 // https://firebase.google.com/docs/reference/js/v8/firebase.User
                 let uid = user.uid;
+                sessionStorage.setItem('uid',uid)
                 let name = user.displayName;
                 let photoURL = user.photoURL;
                 let email = user.email;
@@ -57,8 +58,6 @@ function fb_authenticate(_userName, _age){
                 firebase.database().ref('/userInfo/' + uid + '/phoneNumber').set(phoneNumber);
                 firebase.database().ref('/userInfo/' + uid + '/age').set(_age);
 
-
-
                 fb_checkBan(user.uid)
 
             } else {
@@ -66,7 +65,6 @@ function fb_authenticate(_userName, _age){
                 loggedin = false;
                 canLogIn = true;
                 // User is signed out
-                // ...
             }
         });
     }
@@ -76,9 +74,17 @@ function fb_error(){
     // Don't forget your error handling!
 }
 
-function fb_writeHighscore(gameName, score, userName, uid){
-    firebase.database().ref('/messages').set(gameName + score + userName + uid);
+async function fb_writeHighscore(_gameName, _score,){
+    // NEED TO CHECK IF NEW SCORE IS HIGHER THAN CURRENT SCORE
+    let uid = sessionStorage.getItem('uid')
+    console.log(uid)
+    let snapshot = await firebase.database().ref('/userInfo/'+uid).once('value');
+    let snapshotValue = snapshot.val();
+    let _userName = snapshotValue.userName;
 
+    console.log('writing')
+    firebase.database().ref('/'+_gameName+'Highscore/'+uid+'/userName').set(_userName);
+    firebase.database().ref('/'+_gameName+'Highscore/'+uid+'/score').set(_score);
 }
 
 async function fb_checkBan(_userUID) {

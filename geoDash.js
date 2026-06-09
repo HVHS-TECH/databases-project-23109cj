@@ -12,15 +12,13 @@ console.log("Running the game");
 
 // End game code
 function endGame(_player, _obstacle){
-    fb_writeHighscore('GeoDash', score, 'test', 'uid1')
-
     console.log("Game ended, you got "+score+" points.")
     screenSelector = "end";
     player.remove();
     obstacles.removeAll();
     // Put your database writes here:
 
-    
+    fb_writeHighscore('demoGame',score)
 
 
 }
