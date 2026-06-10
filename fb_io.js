@@ -87,9 +87,14 @@ async function fb_writeHighscore(_gameName, _score,){
     let snapshot = await firebase.database().ref('/userInfo/'+uid).once('value');
     let snapshotValue = snapshot.val();
     let userName = snapshotValue.userName;
-    let scoreSnapshot = await firebase.database().ref('/'+_gameName+'Highscore/'+uid).once('value');
-    let scoreSnapshotValue = scoreSnapshot.val();
-    let currentScore = scoreSnapshotValue.score;
+    let scoreSnapshot = await firebase.database().ref('/'+_gameName+'Highscore/'+uid+'/score').once('value');
+    let currentScore;
+    if(scoreSnapshot.exists()){
+        let scoreSnapshotvalue = scoreSnapshot.val();
+         currentScore = scoreSnapshotValue.score;
+    }else{
+         currentScore = 0;
+    }
     if(_score >= currentScore || currentScore == null){
         console.log('writing')
         firebase.database().ref('/'+_gameName+'Highscore/'+uid+'/userName').set(userName);
