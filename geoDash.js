@@ -18,8 +18,7 @@ function endGame(_player, _obstacle){
     obstacles.removeAll();
     // Put your database writes here:
 
-    fb_writeHighscore('demoGame',score)
-
+    fb_writeHighscore('geoDash',score)
 
 }
 
