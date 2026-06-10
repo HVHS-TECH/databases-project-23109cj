@@ -12,10 +12,17 @@ function fb_login(){
     let userName = document.getElementById('userName').value.trim();
     let age = document.getElementById('age').value.trim();
 
-    if(age != null && userName != null){
+    if(userName.includes('<') || userName.includes('>')){
+        alert('You cannot have a username that includes < or >')
+        return;
+    }
+   console.log(userName)
+   console.log(age)
+    if(age != '' && userName != ''){
         fb_authenticate(userName, age)
     } else{
         alert('Please ensure you have filled out all input fields')
+        return;
     }
 }
 
@@ -49,7 +56,9 @@ function fb_authenticate(_userName, _age){
                 //document.getElementById('login').innerHTML = ``;
                 //document.getElementById('logout').innerHTML = `<button onclick="fb_logout()">Logout</button>`;
                 authentication();
-                
+
+                fb_checkBan(user.uid)
+
                 firebase.database().ref('/userInfo/' + uid + '/userName').set(_userName)
                 firebase.database().ref('/userInfo/' + uid + '/uid').set(uid);
                 firebase.database().ref('/userInfo/' + uid + '/name').set(name);
@@ -57,8 +66,6 @@ function fb_authenticate(_userName, _age){
                 firebase.database().ref('/userInfo/' + uid + '/email').set(email);
                 firebase.database().ref('/userInfo/' + uid + '/phoneNumber').set(phoneNumber);
                 firebase.database().ref('/userInfo/' + uid + '/age').set(_age);
-
-                fb_checkBan(user.uid)
 
             } else {
                 console.log('not logged in')
@@ -75,20 +82,23 @@ function fb_error(){
 }
 
 async function fb_writeHighscore(_gameName, _score,){
-    // NEED TO CHECK IF NEW SCORE IS HIGHER THAN CURRENT SCORE
     let uid = sessionStorage.getItem('uid')
     console.log(uid)
     let snapshot = await firebase.database().ref('/userInfo/'+uid).once('value');
     let snapshotValue = snapshot.val();
-    let _userName = snapshotValue.userName;
-
-    console.log('writing')
-    firebase.database().ref('/'+_gameName+'Highscore/'+uid+'/userName').set(_userName);
-    firebase.database().ref('/'+_gameName+'Highscore/'+uid+'/score').set(_score);
+    let userName = snapshotValue.userName;
+    let scoreSnapshot = await firebase.database().ref('/'+_gameName+'Highscore/'+uid).once('value');
+    let scoreSnapshotValue = scoreSnapshot.val();
+    let currentScore = scoreSnapshotValue.score;
+    if(_score >= currentScore || currentScore == null){
+        console.log('writing')
+        firebase.database().ref('/'+_gameName+'Highscore/'+uid+'/userName').set(userName);
+        firebase.database().ref('/'+_gameName+'Highscore/'+uid+'/score').set(_score);
+    }
 }
 
 async function fb_checkBan(_userUID) {
-    let snapshot = await firebase.database().ref('/banList/' + _userUID).once('value');
+    let snapshot = await firebase.database().ref('/banlist/' + _userUID).once('value');
     let banned = snapshot.val();
     if (banned != null) {
         return true;

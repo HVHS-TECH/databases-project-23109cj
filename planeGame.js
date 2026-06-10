@@ -90,14 +90,14 @@ function setup() {
 function createEnemy(_playerX, _playerY) {
     console.log('createEnemy()')
     let ySpawn = random(_playerY - 100, _playerY + 100)
-    while (ySpawn >= groundHeight){
+    while (ySpawn >= groundHeight) {
         ySpawn -= 10;
     }
     enemyAttack += 1;
     enemy = new Sprite(_playerX - screenWidth / 2, ySpawn, 80, 30, 'd')
 
     //makes sure the enemy planes aren't in the ground
-    
+
 
     //adds image to enemy
     enemy.image = (imgEnemy);
@@ -337,7 +337,7 @@ function drawGame() {
 
     //chaff collisions
     if (enemyMissileExists && chaffGroup.collides(enemyMissile)) {
-        score +=5;
+        score += 5;
         enemyMissile.remove()
         enemyMissileExists = false;
     }
@@ -349,11 +349,11 @@ function drawGame() {
     }
 
     //missile movement & removal after time
-    if(missileTimer != 0 ){
-        if (missileTimer >=  250) {
+    if (missileTimer != 0) {
+        if (missileTimer >= 250) {
             missile.x += (mouse.x - missile.x) * 0.075;
             missile.y += (mouse.y - missile.y) * 0.075;
-        }else if(missileTimer >= 0){
+        } else if (missileTimer >= 0) {
             missile.x = mouse.x;
             missile.y = mouse.y;
         }
@@ -422,17 +422,15 @@ function drawEnd() {
     text("You died - your score was: " + score + '\n Press enter to return to main menu', windowWidth / 2, windowHeight / 2);
 
     //-----------------------------------------
-    //firebase write HERE
+    //firebase write 
     //----------------------------------------
-
-
+    fb_writeHighscore('planeGame', score)
 
     //return to main menu
     if (kb.presses('enter')) {
         gameState = "menu";
         reset();
     }
-
 }
 
 //--------------------------------------------
