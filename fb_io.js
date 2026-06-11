@@ -53,8 +53,6 @@ function fb_authenticate(_userName, _age){
                 let email = user.email;
                 let phoneNumber = user.phoneNumber;
 
-                //document.getElementById('login').innerHTML = ``;
-                //document.getElementById('logout').innerHTML = `<button onclick="fb_logout()">Logout</button>`;
                 authentication();
 
                 fb_checkBan(user.uid)
@@ -114,6 +112,20 @@ async function fb_checkBan(_userUID) {
 }
 
 async function fb_readHighscore(_gameName) {
-    
+    console.log('fb_readHighscore()')
+    let snapshot = await firebase.database().ref('/'+_gameName+'Highscore').once('value');
+    let highscoreSnapshot = snapshot.val();
+    let highscoreTable = [];
+    let highscoreKeys = Object.values(highscoreSnapshot)
+
+    for(i=0; i<highscoreKeys.length; i++){
+        let userKey = highscoreKeys[i].userName;
+        let scoreKey = highscoreKeys[i].score;
+        let userDetails = {'userName': userKey,  'score': scoreKey}
+        
+        highscoreTable.push(userDetails)
+    }
+    highscoreTable.sort((a,b) => b - a)
+    console.log(highscoreTable)
 }
 
