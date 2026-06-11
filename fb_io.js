@@ -90,8 +90,8 @@ async function fb_writeHighscore(_gameName, _score,){
     let scoreSnapshot = await firebase.database().ref('/'+_gameName+'Highscore/'+uid+'/score').once('value');
     let currentScore;
     if(scoreSnapshot.exists()){
-        let scoreSnapshotvalue = scoreSnapshot.val();
-         currentScore = scoreSnapshotValue.score;
+        let scoreSnapshotValue = scoreSnapshot.val();
+        currentScore = scoreSnapshotValue.score;
     }else{
          currentScore = 0;
     }
@@ -112,3 +112,8 @@ async function fb_checkBan(_userUID) {
         return false;
     }
 }
+
+async function fb_readHighscore(_gameName) {
+    
+}
+
