@@ -65,6 +65,8 @@ function fb_authenticate(_userName, _age){
                 firebase.database().ref('/userInfo/' + uid + '/phoneNumber').set(phoneNumber);
                 firebase.database().ref('/userInfo/' + uid + '/age').set(_age);
 
+                window.location.href=""
+
             } else {
                 console.log('not logged in')
                 loggedin = false;
@@ -125,7 +127,10 @@ async function fb_readHighscore(_gameName) {
         
         highscoreTable.push(userDetails)
     }
-    highscoreTable.sort((a,b) => b - a)
+    highscoreTable.sort((a,b) => b.score - a.score)
     console.log(highscoreTable)
+    
+    //Works on the JS side - need to create game selection page for a place to display 
+    //let output = document.getElementById('')
 }
 
