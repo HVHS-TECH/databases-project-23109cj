@@ -48,6 +48,7 @@ function fb_authenticate(_userName, _age){
                 // https://firebase.google.com/docs/reference/js/v8/firebase.User
                 let uid = user.uid;
                 sessionStorage.setItem('uid',uid)
+                sessionStorage.setItem('userName',_userName)
                 let name = user.displayName;
                 let photoURL = user.photoURL;
                 let email = user.email;
@@ -65,7 +66,7 @@ function fb_authenticate(_userName, _age){
                 firebase.database().ref('/userInfo/' + uid + '/phoneNumber').set(phoneNumber);
                 firebase.database().ref('/userInfo/' + uid + '/age').set(_age);
 
-                window.location.href=""
+                window.location.href="gameSelection.html"
 
             } else {
                 console.log('not logged in')
@@ -130,7 +131,17 @@ async function fb_readHighscore(_gameName) {
     highscoreTable.sort((a,b) => b.score - a.score)
     console.log(highscoreTable)
     
-    //Works on the JS side - need to create game selection page for a place to display 
-    //let output = document.getElementById('')
+    let output = document.getElementById('output');
+    output.innerHTML = '';
+
+    let uid = sessionStorage.getItem('uid')
+    let userName = sessionStorage.getItem('userName')
+    let currentUserSnapshot = await firebase.database().ref('/'+_gameName+'Highscore/'+uid+'/score').once('value');
+    let currentUserHighscore = currentUserSnapshot.val();
+    output.innerText = 'Your Score: '+currentUserHighscore+'\n\n The Top 5 Highscores are:\n';
+
+    for(i=0; i<4 && i<highscoreTable.length; i++){
+        output.innerText += `\n`+ highscoreTable[i].userName +`: `+highscoreTable[i].score;
+    }
 }
 
