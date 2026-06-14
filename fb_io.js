@@ -15,6 +15,9 @@ function fb_login(){
     if(userName.includes('<') || userName.includes('>')){
         alert('You cannot have a username that includes < or >')
         return;
+    } else if(age<13){
+        alert('You have to be at least 13 to use this site');
+        return;
     }
    console.log(userName)
    console.log(age)
@@ -144,4 +147,3 @@ async function fb_readHighscore(_gameName) {
         output.innerText += `\n`+ highscoreTable[i].userName +`: `+highscoreTable[i].score;
     }
 }
-
