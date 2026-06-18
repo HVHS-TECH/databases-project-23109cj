@@ -1,0 +1,52 @@
+/*colorpalette: #E5D4ED
+                #6D72C3
+                #5941A9
+                #514F59
+                #1D1128*/
+*{
+    background-color: #6D72C3;
+}
+body{
+    background-color: #E5d4ed;
+    color:#1D1128;
+    margin-left: 10%;
+    margin-right: 10%;
+    padding-top: 5%;
+    align-items:center;
+    height: 99vh;
+}
+h1{
+    background-color: #E5d4ed;
+    padding-left: 25%;
+}
+.title{
+    background-color: #E5d4ed;
+}
+h2{
+    padding-top: 0%;
+    padding-bottom: 0%;
+    padding-left:25% ;
+    background-color: #E5d4ed;
+    text-decoration:line-through;
+}
+form{
+    background-color: #E5d4ed;
+    color:#1D1128;
+    padding-left: 25%;
+}
+label{
+    background-color: #E5d4ed;
+    color:#1D1128;
+}
+input{
+    background-color: #E5d4ed;
+}
+button{
+    background-color: #E5d4ed;
+    margin-top: 1%;
+    margin-left: 25%;
+}
+img{
+    margin-left: 75%;
+    border-radius: 50%;
+}
