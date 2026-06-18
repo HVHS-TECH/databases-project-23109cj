@@ -70,7 +70,11 @@ async function fb_authenticate(_userName, _age) {
                 firebase.database().ref('/userInfo/' + uid + '/age').set(_age);
 
                 //need to change to updatiung inner html, rather than changing pages
-                document.getElementById('body').innerHTML =``
+                document.getElementById('body').innerHTML =`<button onclick="window.location.href='planeGame.html'">Plane Game</button>
+  <button onclick="fb_readHighscore('planeGame')">Plane Game Highscores</button><br>
+  <button onclick="window.location.href='geoDash.html'">Geo Dash</button>
+  <button onclick="fb_readHighscore('geoDash')">Geo Dash Highscores</button><br>
+  <br><br><div id="output">`
 
                 //window.location.href="gameSelection.html"
 
