@@ -8,6 +8,14 @@
  **************************************************************/
 let canLogIn = true;
 
+//--------------------------------------------
+//fb_login()
+//gets user input, and validates it before passing it to fb_authenticate
+//Called:   When the user inputs their data, and presses the login with google button
+//Input:    userName - text HTML input field 
+//          age - numerical HTML input field
+//Return:   N/A
+//--------------------------------------------
 function fb_login() {
     let userName = document.getElementById('userName').value.trim();
     let age = document.getElementById('age').value.trim();
@@ -28,6 +36,17 @@ function fb_login() {
         return;
     }
 }
+
+//--------------------------------------------
+//fb_authenticate(_userName, _age)
+//Logs the user into firebase, signing them in with their google account.  
+//Then scrapes a bunch of their data, and writes it to their firebase profile.
+//Once logged in, changes HTML from the login page, to the game selection page.
+//Called:   from fb_login(), once user input has been validated
+//Input:    _userName - string, to be used in all communication with the user
+//          _age - numerical value, 
+//Return:   Writes user data to their profile on firebase. 
+//--------------------------------------------
 
 async function fb_authenticate(_userName, _age) {
     // authenticate with Google
@@ -69,12 +88,12 @@ async function fb_authenticate(_userName, _age) {
                 firebase.database().ref('/userInfo/' + uid + '/phoneNumber').set(phoneNumber);
                 firebase.database().ref('/userInfo/' + uid + '/age').set(_age);
 
-                document.getElementById('body').innerHTML = `<img src="`+photoURL+`"><br>
+                document.getElementById('body').innerHTML = `<h1>Hello `+_userName+`</h1><img src="`+photoURL+`"><br>
                 <button onclick="window.location.href='planeGame.html'">Plane Game</button><br>
                 <button onclick="window.location.href='geoDash.html'">Geo Dash</button><br>
                 <button onclick="fb_readHighscore('geoDash')">Geo Dash Highscores</button><br>
                 <button onclick="fb_readHighscore('planeGame')">Plane Game Highscores</button>
-                <br><br><div id="output">`
+                <br><br><div id="output" style="background-color: #E5d4ed;padding-left: 25%;">`
 
 
             } else {
@@ -87,10 +106,15 @@ async function fb_authenticate(_userName, _age) {
     }
 }
 
-function fb_error() {
-    // Don't forget your error handling!
-}
-
+//--------------------------------------------
+//fb_writeHighscore(_gameName, _score,)
+//Checks if the users score in a game is greater than their previous score, 
+// and if this is the case, updates their highscore on firebase
+//Called:   When the user ends a game
+//Input:    _gameName - string value, identifies which game the user is playing
+//          _score - numerical value, the users current score in the game 
+//Return:   If the user has achieved a new highscore, writes that to the highscoer branch of firebase, otherwise nothing
+//--------------------------------------------
 async function fb_writeHighscore(_gameName, _score,) {
     let uid = sessionStorage.getItem('uid')
     console.log(uid)
@@ -112,6 +136,13 @@ async function fb_writeHighscore(_gameName, _score,) {
     }
 }
 
+//--------------------------------------------
+//fb_checkBan(_userUID)
+//Checks if the user is on the banlist, if they are, it returns true, and redirects them to the wikipedia page for hacker 
+//Called:   In fb_authenticate()
+//Input:    _userUID - the current user's UID
+//Return:   Boolean
+//--------------------------------------------
 async function fb_checkBan(_userUID) {
     let snapshot = await firebase.database().ref('/banlist/' + _userUID).once('value');
     let banned = snapshot.val();
@@ -123,6 +154,13 @@ async function fb_checkBan(_userUID) {
     }
 }
 
+//--------------------------------------------
+//fb_readHighscore(_gameName)
+//Reads all user highscores, sorts them, and displays the top 5, along with the user's highscore
+//Called:   When the user presses one of the Highscore table buttons
+//Input:    _gameName - string, tells the function which branch of firebase highscores it is reading
+//Return:   Displays the top 5 highscores, and the user's in the HTML
+//--------------------------------------------
 async function fb_readHighscore(_gameName) {
     console.log('fb_readHighscore()')
     let snapshot = await firebase.database().ref('/' + _gameName + 'Highscore').once('value');
@@ -147,7 +185,7 @@ async function fb_readHighscore(_gameName) {
     let userName = sessionStorage.getItem('userName')
     let currentUserSnapshot = await firebase.database().ref('/' + _gameName + 'Highscore/' + uid + '/score').once('value');
     let currentUserHighscore = currentUserSnapshot.val();
-    output.innerText = 'Your Score: ' + currentUserHighscore + '\n\n The Top 5 Highscores are:\n';
+    output.innerText = '\n\nYour Score: ' + currentUserHighscore + '\n\n The Top 5 Highscores are:\n';
 
     for (i = 0; i < 4 && i < highscoreTable.length; i++) {
         output.innerText += `\n` + highscoreTable[i].userName + `: ` + highscoreTable[i].score;
