@@ -17,6 +17,7 @@ let canLogIn = true;
 //Return:   N/A
 //--------------------------------------------
 function fb_login() {
+    console.log('fb_login()')
     //get user input form HTML form
     let userName = document.getElementById('userName').value.trim();
     let age = document.getElementById('age').value.trim();
@@ -51,6 +52,7 @@ function fb_login() {
 //--------------------------------------------
 
 async function fb_authenticate(_userName, _age) {
+    console.log('fb_authenticate()')
     // authenticate with Google
     if (canLogIn) {
         var authentication = firebase.auth().onAuthStateChanged((user) => {
@@ -94,6 +96,7 @@ async function fb_authenticate(_userName, _age) {
                 firebase.database().ref('/userInfo/' + uid + '/phoneNumber').set(phoneNumber);
                 firebase.database().ref('/userInfo/' + uid + '/age').set(_age);
 
+                //changing HTML to the game selection and highscore page
                 document.getElementById('body').innerHTML = `<h1>Hello `+_userName+`</h1><img src="`+photoURL+`"><br>
                 <button onclick="window.location.href='planeGame.html'">Plane Game</button><br>
                 <button onclick="window.location.href='geoDash.html'">Geo Dash</button><br>
@@ -122,28 +125,27 @@ async function fb_authenticate(_userName, _age) {
 //Return:   If the user has achieved a new highscore, writes that to the highscoer branch of firebase, otherwise nothing
 //--------------------------------------------
 async function fb_writeHighscore(_gameName, _score,) {
+    console.log('fb_writeHighscore()')
+
+    //get the user ID - needed for the firebase read/write
     let uid = sessionStorage.getItem('uid')
-    console.log(uid)
+
+    //read the users username
     let snapshot = await firebase.database().ref('/userInfo/' + uid).once('value');
     let snapshotValue = snapshot.val();
     let userName = snapshotValue.userName;
+
+    //read the users current highscore - if this is the users first time playing, their current highscore is 0
     let scoreSnapshot = await firebase.database().ref('/' + _gameName + 'Highscore/' + uid + '/score').once('value');
     let currentScore;
-
-    console.log(scoreSnapshot.exists())
-    
     if (scoreSnapshot.exists()) {
-        
         let scoreSnapshotValue = scoreSnapshot.val();
-        console.log(scoreSnapshot.val())  
         currentScore = scoreSnapshotValue;
-        console.log(currentScore)
     } else {
         currentScore = 0;
     }
-    console.log(currentScore)
-    console.log(_score)
-    console.log(_score >= currentScore)
+
+    //checks that the new score is actually a highscore - and then overwrites with the new highscore
     if (_score >= currentScore || currentScore == null) {
         console.log('writing')
         firebase.database().ref('/' + _gameName + 'Highscore/' + uid + '/userName').set(userName);
@@ -159,8 +161,11 @@ async function fb_writeHighscore(_gameName, _score,) {
 //Return:   Boolean
 //--------------------------------------------
 async function fb_checkBan(_userUID) {
+    console.log('fb_checkBan()')
+    //reads the banlist, 
     let snapshot = await firebase.database().ref('/banlist/' + _userUID).once('value');
     let banned = snapshot.val();
+    //Checks if the user is on the banlist, if they are it prevetns login, and redirects them
     if (banned != null) {
         return true;
         window.location.href = 'https://en.wikipedia.org/wiki/Hacker';
@@ -178,18 +183,20 @@ async function fb_checkBan(_userUID) {
 //--------------------------------------------
 async function fb_readHighscore(_gameName) {
     console.log('fb_readHighscore()')
+    //reads every users highscore for the game
     let snapshot = await firebase.database().ref('/' + _gameName + 'Highscore').once('value');
     let highscoreSnapshot = snapshot.val();
     let highscoreTable = [];
     let highscoreKeys = Object.values(highscoreSnapshot)
 
+    //takes username, and their corrosponding highscore, and puts them together as an object in an array
     for (i = 0; i < highscoreKeys.length; i++) {
         let userKey = highscoreKeys[i].userName;
         let scoreKey = highscoreKeys[i].score;
         let userDetails = { 'userName': userKey, 'score': scoreKey }
-
         highscoreTable.push(userDetails)
     }
+    //sorts the array on score, to get the alltime highscores
     highscoreTable.sort((a, b) => b.score - a.score)
     console.log(highscoreTable)
 
