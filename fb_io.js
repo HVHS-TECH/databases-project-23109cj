@@ -17,18 +17,20 @@ let canLogIn = true;
 //Return:   N/A
 //--------------------------------------------
 function fb_login() {
+    //get user input form HTML form
     let userName = document.getElementById('userName').value.trim();
     let age = document.getElementById('age').value.trim();
 
+    //validate the user input
     if (userName.includes('<') || userName.includes('>')) {
         alert('You cannot have a username that includes < or >')
         return;
-    } else if (age < 13) {
+    } /*else if (age < 13) {
         alert('You have to be at least 13 to use this site');
         return;
-    }
-    console.log(userName)
-    console.log(age)
+    }*/
+
+    //checks the user has filled in fields, and passes data to the authenticate function
     if (age != '' && userName != '') {
         fb_authenticate(userName, age)
     } else {
@@ -52,7 +54,6 @@ async function fb_authenticate(_userName, _age) {
     // authenticate with Google
     if (canLogIn) {
         var authentication = firebase.auth().onAuthStateChanged((user) => {
-
             var provider = new firebase.auth.GoogleAuthProvider();
             firebase.auth().signInWithPopup(provider).then(function (result) {
                 // This gives you a Google Access Token.
@@ -68,6 +69,8 @@ async function fb_authenticate(_userName, _age) {
                 console.log(user)
                 // User is signed in, see docs for a list of available properties
                 // https://firebase.google.com/docs/reference/js/v8/firebase.User
+
+                //Gets user data, and stores uid and username in session storage for later access
                 let uid = user.uid;
                 sessionStorage.setItem('uid', uid)
                 sessionStorage.setItem('userName', _userName)
@@ -78,7 +81,10 @@ async function fb_authenticate(_userName, _age) {
 
                 authentication();
 
+                //checks user in not banned
                 fb_checkBan(user.uid)
+
+                //writes user data to their firebase profile
                 console.log('starting write')
                 firebase.database().ref('/userInfo/' + uid + '/userName').set(_userName)
                 firebase.database().ref('/userInfo/' + uid + '/uid').set(uid);
@@ -123,12 +129,21 @@ async function fb_writeHighscore(_gameName, _score,) {
     let userName = snapshotValue.userName;
     let scoreSnapshot = await firebase.database().ref('/' + _gameName + 'Highscore/' + uid + '/score').once('value');
     let currentScore;
+
+    console.log(scoreSnapshot.exists())
+    
     if (scoreSnapshot.exists()) {
+        
         let scoreSnapshotValue = scoreSnapshot.val();
-        currentScore = scoreSnapshotValue.score;
+        console.log(scoreSnapshot.val())  
+        currentScore = scoreSnapshotValue;
+        console.log(currentScore)
     } else {
         currentScore = 0;
     }
+    console.log(currentScore)
+    console.log(_score)
+    console.log(_score >= currentScore)
     if (_score >= currentScore || currentScore == null) {
         console.log('writing')
         firebase.database().ref('/' + _gameName + 'Highscore/' + uid + '/userName').set(userName);
@@ -187,7 +202,8 @@ async function fb_readHighscore(_gameName) {
     let currentUserHighscore = currentUserSnapshot.val();
     output.innerText = '\n\nYour Score: ' + currentUserHighscore + '\n\n The Top 5 Highscores are:\n';
 
-    for (i = 0; i < 4 && i < highscoreTable.length; i++) {
+    console.log(highscoreTable.length)
+    for (i = 0; i < 5 && i < highscoreTable.length; i++) {
         output.innerText += `\n` + highscoreTable[i].userName + `: ` + highscoreTable[i].score;
     }
 }
