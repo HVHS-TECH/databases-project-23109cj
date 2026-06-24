@@ -200,15 +200,21 @@ async function fb_readHighscore(_gameName) {
     highscoreTable.sort((a, b) => b.score - a.score)
     console.log(highscoreTable)
 
+    //resets output area
     let output = document.getElementById('output');
     output.innerHTML = '';
 
     let uid = sessionStorage.getItem('uid')
     let userName = sessionStorage.getItem('userName')
+
+    //reads the current user's highscore
     let currentUserSnapshot = await firebase.database().ref('/' + _gameName + 'Highscore/' + uid + '/score').once('value');
     let currentUserHighscore = currentUserSnapshot.val();
+
+    //displays the user's highscore
     output.innerText = '\n\nYour Score: ' + currentUserHighscore + '\n\n The Top 5 Highscores are:\n';
 
+    //displays the top 5 highscores from all players
     console.log(highscoreTable.length)
     for (i = 0; i < 5 && i < highscoreTable.length; i++) {
         output.innerText += `\n` + highscoreTable[i].userName + `: ` + highscoreTable[i].score;
