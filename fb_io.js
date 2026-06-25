@@ -7,10 +7,10 @@
  **************************************************************
  **************************************************************/
 let canLogIn = true;
-function redirectToGameSelection(_userName, _photoURL){
-    document.getElementById('body').innerHTML = `<h1>Hello ` + _userName + `</h1><img src="` + _photoURL + `"><br>
-                                    <button onclick="window.location.href='planeGame.html'">Plane Game</button><br>
-                                    <button onclick="window.location.href='geoDash.html'">Geo Dash</button><br>
+function redirectToGameSelection(_userName, _photoURL) {
+    document.getElementById('body').innerHTML = `<h1>Hello ` + _userName + `</h1><img src="` + _photoURL + `" id="profilePicture"><br>
+                                    <button onclick="window.location.href='planeGame/planeGame.html'">Plane Game</button><br>
+                                    <button onclick="window.location.href='geoDash/geoDash.html'">Geo Dash</button><br>
                                     <button onclick="fb_readHighscore('geoDash')">Geo Dash Highscores</button><br>
                                     <button onclick="fb_readHighscore('planeGame')">Plane Game Highscores</button>
                                     <br><br><div id="output" style="background-color: #E5d4ed;padding-left: 25%;">`
@@ -26,7 +26,7 @@ function fb_signupHTML(_uid) {
                                                     <label for="age">How old are you</label><br>
                                                     <input type="number" id="age" name="age" max="250" min="13" required /><br>
                                                 </form>
-                                                <button onclick="fb_signup()"><img src="Images/signUpWithGoogle.png"></button>`;
+                                                <button onclick="fb_signup()" id="googleButton"><img src="Images/signUpWithGoogle.png" id="googleButtonImg"></button>`;
 
 }
 function fb_signup() {
@@ -75,7 +75,7 @@ async function fb_loginV2(_uid) {
     console.log('fb_loginV2')
     let snapshot = await firebase.database().ref('/userInfo/' + _uid).once('value');
     let userInfo = snapshot.val()
-    
+
     console.log(userInfo)
     if (userInfo == null) {
         fb_signupHTML(_uid)

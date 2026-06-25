@@ -46,9 +46,17 @@ button{
     margin-top: 1%;
     margin-left: 25%;
 }
-img{
+#profilePicture{
     margin-left: 75%;
     border-radius: 50%;
+}
+
+#googleButtonImg{
+    background-color: #E5d4ed;
+}
+
+#googleButton{
+    border:none ;
 }
 .output{
     background-color: #E5d4ed;

@@ -36,10 +36,10 @@ let screenHeight;       //as var so it can be read from all functions - value ne
 function preload() {
     console.log('preload()')
     //loading images
-    imgPlane = loadImage('Images/A-7.svg');
-    imgCloud = loadImage('Images/Cloud.png');
-    imgMissile = loadImage('Images/missile.png');
-    imgEnemy = loadImage('Images/F-14.png');
+    imgPlane = loadImage('../Images/A-7.svg');
+    imgCloud = loadImage('../Images/Cloud.png');
+    imgMissile = loadImage('../Images/missile.png');
+    imgEnemy = loadImage('../Images/F-14.png');
 }
 
 function setup() {
