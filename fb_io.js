@@ -8,6 +8,122 @@
  **************************************************************/
 let canLogIn = true;
 
+function fb_signupHTML(_uid) {
+    console.log('fb_signupHTML')
+    document.getElementById('body').innerHTML = `<form id="loginForm">
+                                                    <label for="userName">Please choose a username:<br>Note: Your username cannot include angle brackets, such as '>'</label><br>
+                                                    <input type="text" id="userName" name="userName" maxlength="20" /><br><br>
+
+                                                    <label for="age">How old are you</label><br>
+                                                    <input type="number" id="age" name="age" max="250" min="13" required /><br>
+                                                </form>
+                                                <button onclick="fb_signup()">Signup with google</button>`;
+
+}
+function fb_signup() {
+    //get user input form HTML form
+    let userName = document.getElementById('userName').value.trim();
+    let age = document.getElementById('age').value.trim();
+
+    //validate the user input
+    if (userName.includes('<') || userName.includes('>')) {
+        alert('You cannot have a username that includes < or >')
+        return;
+    }
+
+    //checks the user has filled in fields, and passes data to the authenticate function
+    if (age != '' && userName != '') {
+        //get user data
+
+        let uid = sessionStorage.getItem('uid')
+        sessionStorage.setItem('userName', userName)
+        let name = sessionStorage.getItem('name')
+        let photoURL = sessionStorage.getItem('photoURL')
+        let email = sessionStorage.getItem('email')
+        let phoneNumber = sessionStorage.getItem('phoneNumber')
+
+
+        //writes user data to their firebase profile
+        console.log('starting write')
+        firebase.database().ref('/userInfo/' + uid + '/userName').set(userName)
+        firebase.database().ref('/userInfo/' + uid + '/uid').set(uid);
+        firebase.database().ref('/userInfo/' + uid + '/name').set(name);
+        firebase.database().ref('/userInfo/' + uid + '/photoURL').set(photoURL);
+        firebase.database().ref('/userInfo/' + uid + '/email').set(email);
+        firebase.database().ref('/userInfo/' + uid + '/phoneNumber').set(phoneNumber);
+        firebase.database().ref('/userInfo/' + uid + '/age').set(age);
+
+        //changing HTML to the game selection and highscore page
+        document.getElementById('body').innerHTML = `<h1>Hello ` + userName + `</h1><img src="` + photoURL + `"><br>
+                                    <button onclick="window.location.href='planeGame.html'">Plane Game</button><br>
+                                    <button onclick="window.location.href='geoDash.html'">Geo Dash</button><br>
+                                    <button onclick="fb_readHighscore('geoDash')">Geo Dash Highscores</button><br>
+                                    <button onclick="fb_readHighscore('planeGame')">Plane Game Highscores</button>
+                                    <br><br><div id="output" style="background-color: #E5d4ed;padding-left: 25%;">`
+
+    } else {
+        alert('Please ensure you have filled out all input fields')
+        return;
+    }
+}
+
+async function fb_loginV2(_uid) {
+    console.log('fb_loginV2')
+    let snapshot = await firebase.database().ref('/userInfo/' + _uid).once('value');
+    let userInfo = snapshot.val()
+    let userName = userInfo.userName;
+    let photoURL = userInfo.photoURL;
+    console.log(userInfo)
+    if (userInfo == null) {
+        fb_signupHTML(_uid)
+    } else {
+        //changing HTML to the game selection and highscore page
+        document.getElementById('body').innerHTML = `<h1>Hello ` + userName + `</h1><img src="` + photoURL + `"><br>
+                                    <button onclick="window.location.href='planeGame.html'">Plane Game</button><br>
+                                    <button onclick="window.location.href='geoDash.html'">Geo Dash</button><br>
+                                    <button onclick="fb_readHighscore('geoDash')">Geo Dash Highscores</button><br>
+                                    <button onclick="fb_readHighscore('planeGame')">Plane Game Highscores</button>
+                                    <br><br><div id="output" style="background-color: #E5d4ed;padding-left: 25%;">`
+    }
+}
+
+async function fb_authenticateV2() {
+    console.log('fb_authenticateV2()')
+    // authenticate with Google
+    if (canLogIn) {
+        var authentication = firebase.auth().onAuthStateChanged((user) => {
+            var provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider).then(function (result) {
+                // This gives you a Google Access Token.
+                var token = result.credential.accessToken;
+                // The signed-in user info.
+                user = result.user;
+            });
+            if (user) {
+
+                loggedin = true;
+                canLogIn = false;
+
+                console.log('loggedin')
+                console.log(user)
+
+                sessionStorage.setItem('uid', user.uid)
+                sessionStorage.setItem('user', user)
+                sessionStorage.setItem('name', user.displayName)
+                sessionStorage.setItem('photoURL', user.photoURL)
+                sessionStorage.setItem('email', user.email)
+                sessionStorage.setItem('phoneNumber', user.phoneNumber)
+
+                fb_loginV2(user.uid)
+            } else {
+                console.log('not logged in')
+                loggedin = false;
+                canLogIn = true;
+                // User is signed out
+            }
+        });
+    }
+}
 //--------------------------------------------
 //fb_login()
 //gets user input, and validates it before passing it to fb_authenticate
@@ -16,7 +132,7 @@ let canLogIn = true;
 //          age - numerical HTML input field
 //Return:   N/A
 //--------------------------------------------
-function fb_login() {
+/*function fb_login() {
     console.log('fb_login()')
     //get user input form HTML form
     let userName = document.getElementById('userName').value.trim();
@@ -26,10 +142,7 @@ function fb_login() {
     if (userName.includes('<') || userName.includes('>')) {
         alert('You cannot have a username that includes < or >')
         return;
-    } /*else if (age < 13) {
-        alert('You have to be at least 13 to use this site');
-        return;
-    }*/
+    } 
 
     //checks the user has filled in fields, and passes data to the authenticate function
     if (age != '' && userName != '') {
@@ -113,7 +226,7 @@ async function fb_authenticate(_userName, _age) {
             }
         });
     }
-}
+}*/
 
 //--------------------------------------------
 //fb_writeHighscore(_gameName, _score,)

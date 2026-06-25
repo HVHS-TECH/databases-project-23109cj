@@ -21,15 +21,8 @@
 </head>
 <body id="body">
   <h1 id="title">Welcome to the </h1><h2>data-scraping</h2><h1> game page</h1>
-  <form id="loginForm">
-      <label for="userName">Please choose a username:<br>Note: Your username cannot include angle brackets, such as '>'</label><br>
-      <input type="text" id="userName" name="userName" maxlength="20" /><br><br>
 
-      <label for="age">How old are you</label><br>
-      <input type="number" id="age" name="age" max="250" min="13" required /><br>
-  </form>
-
-  <button onclick="fb_login()">Login with google</button>
+  <button onclick="fb_authenticateV2()">Login with google</button>
 </body>
 <script src="script.js"></script>
 </html>
