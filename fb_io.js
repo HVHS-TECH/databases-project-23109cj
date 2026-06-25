@@ -10,7 +10,9 @@ let canLogIn = true;
 
 function fb_signupHTML(_uid) {
     console.log('fb_signupHTML')
-    document.getElementById('body').innerHTML = `<form id="loginForm">
+    document.getElementById('body').innerHTML = `
+                                                <h1>You havn't signed up yet,<br> please fill out this form to continue</h1><br><br>
+                                                <form id="loginForm">
                                                     <label for="userName">Please choose a username:<br>Note: Your username cannot include angle brackets, such as '>'</label><br>
                                                     <input type="text" id="userName" name="userName" maxlength="20" /><br><br>
 
@@ -71,12 +73,13 @@ async function fb_loginV2(_uid) {
     console.log('fb_loginV2')
     let snapshot = await firebase.database().ref('/userInfo/' + _uid).once('value');
     let userInfo = snapshot.val()
-    let userName = userInfo.userName;
-    let photoURL = userInfo.photoURL;
+    
     console.log(userInfo)
     if (userInfo == null) {
         fb_signupHTML(_uid)
     } else {
+        let userName = userInfo.userName;
+        let photoURL = userInfo.photoURL;
         //changing HTML to the game selection and highscore page
         document.getElementById('body').innerHTML = `<h1>Hello ` + userName + `</h1><img src="` + photoURL + `"><br>
                                     <button onclick="window.location.href='planeGame.html'">Plane Game</button><br>
