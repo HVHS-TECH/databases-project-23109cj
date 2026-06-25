@@ -7,7 +7,14 @@
  **************************************************************
  **************************************************************/
 let canLogIn = true;
-
+function redirectToGameSelection(_userName, _photoURL){
+    document.getElementById('body').innerHTML = `<h1>Hello ` + _userName + `</h1><img src="` + _photoURL + `"><br>
+                                    <button onclick="window.location.href='planeGame.html'">Plane Game</button><br>
+                                    <button onclick="window.location.href='geoDash.html'">Geo Dash</button><br>
+                                    <button onclick="fb_readHighscore('geoDash')">Geo Dash Highscores</button><br>
+                                    <button onclick="fb_readHighscore('planeGame')">Plane Game Highscores</button>
+                                    <br><br><div id="output" style="background-color: #E5d4ed;padding-left: 25%;">`
+}
 function fb_signupHTML(_uid) {
     console.log('fb_signupHTML')
     document.getElementById('body').innerHTML = `
@@ -19,7 +26,7 @@ function fb_signupHTML(_uid) {
                                                     <label for="age">How old are you</label><br>
                                                     <input type="number" id="age" name="age" max="250" min="13" required /><br>
                                                 </form>
-                                                <button onclick="fb_signup()">Signup with google</button>`;
+                                                <button onclick="fb_signup()"><img src="Images/signUpWithGoogle.png"></button>`;
 
 }
 function fb_signup() {
@@ -56,12 +63,7 @@ function fb_signup() {
         firebase.database().ref('/userInfo/' + uid + '/age').set(age);
 
         //changing HTML to the game selection and highscore page
-        document.getElementById('body').innerHTML = `<h1>Hello ` + userName + `</h1><img src="` + photoURL + `"><br>
-                                    <button onclick="window.location.href='planeGame.html'">Plane Game</button><br>
-                                    <button onclick="window.location.href='geoDash.html'">Geo Dash</button><br>
-                                    <button onclick="fb_readHighscore('geoDash')">Geo Dash Highscores</button><br>
-                                    <button onclick="fb_readHighscore('planeGame')">Plane Game Highscores</button>
-                                    <br><br><div id="output" style="background-color: #E5d4ed;padding-left: 25%;">`
+        redirectToGameSelection(userName, photoURL)
 
     } else {
         alert('Please ensure you have filled out all input fields')
@@ -81,12 +83,7 @@ async function fb_loginV2(_uid) {
         let userName = userInfo.userName;
         let photoURL = userInfo.photoURL;
         //changing HTML to the game selection and highscore page
-        document.getElementById('body').innerHTML = `<h1>Hello ` + userName + `</h1><img src="` + photoURL + `"><br>
-                                    <button onclick="window.location.href='planeGame.html'">Plane Game</button><br>
-                                    <button onclick="window.location.href='geoDash.html'">Geo Dash</button><br>
-                                    <button onclick="fb_readHighscore('geoDash')">Geo Dash Highscores</button><br>
-                                    <button onclick="fb_readHighscore('planeGame')">Plane Game Highscores</button>
-                                    <br><br><div id="output" style="background-color: #E5d4ed;padding-left: 25%;">`
+        redirectToGameSelection(userName, photoURL)
     }
 }
 
