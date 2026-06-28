@@ -8,15 +8,18 @@
  **************************************************************/
 let canLogIn = true;
 function redirectToGameSelection(_userName, _photoURL) {
-    document.getElementById('body').innerHTML = `<h1>Hello ` + _userName + `</h1><img src="` + _photoURL + `" id="profilePicture"><br>
+    //changing HTML to the game selection page
+    document.getElementById('body').innerHTML = `
+                                    <h1>Hello ` + _userName + `</h1><img src="` + _photoURL + `" id="profilePicture"><br>
                                     <button onclick="window.location.href='planeGame/planeGame.html'">Plane Game</button><br>
                                     <button onclick="window.location.href='geoDash/geoDash.html'">Geo Dash</button><br>
                                     <button onclick="fb_readHighscore('geoDash')">Geo Dash Highscores</button><br>
                                     <button onclick="fb_readHighscore('planeGame')">Plane Game Highscores</button>
                                     <br><br><div id="output" style="background-color: #E5d4ed;padding-left: 25%;">`
 }
-function fb_signupHTML(_uid) {
-    console.log('fb_signupHTML')
+function fb_signupHTML() {
+    console.log('fb_signupHTML()')
+    //changing HTML to signup page
     document.getElementById('body').innerHTML = `
                                                 <h1>You havn't signed up yet,<br> please fill out this form to continue</h1><br><br>
                                                 <form id="loginForm">
@@ -27,7 +30,6 @@ function fb_signupHTML(_uid) {
                                                     <input type="number" id="age" name="age" max="250" min="13" required /><br>
                                                 </form>
                                                 <button onclick="fb_signup()" id="googleButton"><img src="Images/signUpWithGoogle.png" id="googleButtonImg"></button>`;
-
 }
 function fb_signup() {
     //get user input form HTML form
@@ -38,12 +40,14 @@ function fb_signup() {
     if (userName.includes('<') || userName.includes('>')) {
         alert('You cannot have a username that includes < or >')
         return;
+    } else if(age < 13){
+        alert('You must be at least 13 to sign up');
+        return;
     }
 
     //checks the user has filled in fields, and passes data to the authenticate function
     if (age != '' && userName != '') {
-        //get user data
-
+        //set user data to variables - pulling data from session storage
         let uid = sessionStorage.getItem('uid')
         sessionStorage.setItem('userName', userName)
         let name = sessionStorage.getItem('name')
@@ -66,6 +70,7 @@ function fb_signup() {
         redirectToGameSelection(userName, photoURL)
 
     } else {
+        //tells user if there is an error in their input
         alert('Please ensure you have filled out all input fields')
         return;
     }
@@ -73,10 +78,12 @@ function fb_signup() {
 
 async function fb_loginV2(_uid) {
     console.log('fb_loginV2')
+    //reading user data to get username/profile picture
     let snapshot = await firebase.database().ref('/userInfo/' + _uid).once('value');
     let userInfo = snapshot.val()
 
     console.log(userInfo)
+    //checking to see if the user has signed up - if not redirect them to the signup page
     if (userInfo == null) {
         fb_signupHTML(_uid)
     } else {
@@ -89,7 +96,7 @@ async function fb_loginV2(_uid) {
 
 async function fb_authenticateV2() {
     console.log('fb_authenticateV2()')
-    // authenticate with Google
+    // authenticate with Google  - inital 5 lines (lines 98 to 104) from firebase documentation: https://firebase.google.com/docs/auth/web/google-signin#handle_the_sign-in_flow_with_the_firebase_sdk 
     if (canLogIn) {
         var authentication = firebase.auth().onAuthStateChanged((user) => {
             var provider = new firebase.auth.GoogleAuthProvider();
@@ -107,6 +114,7 @@ async function fb_authenticateV2() {
                 console.log('loggedin')
                 console.log(user)
 
+                //setting user data to session storage for later
                 sessionStorage.setItem('uid', user.uid)
                 sessionStorage.setItem('user', user)
                 sessionStorage.setItem('name', user.displayName)
@@ -124,109 +132,6 @@ async function fb_authenticateV2() {
         });
     }
 }
-//--------------------------------------------
-//fb_login()
-//gets user input, and validates it before passing it to fb_authenticate
-//Called:   When the user inputs their data, and presses the login with google button
-//Input:    userName - text HTML input field 
-//          age - numerical HTML input field
-//Return:   N/A
-//--------------------------------------------
-/*function fb_login() {
-    console.log('fb_login()')
-    //get user input form HTML form
-    let userName = document.getElementById('userName').value.trim();
-    let age = document.getElementById('age').value.trim();
-
-    //validate the user input
-    if (userName.includes('<') || userName.includes('>')) {
-        alert('You cannot have a username that includes < or >')
-        return;
-    } 
-
-    //checks the user has filled in fields, and passes data to the authenticate function
-    if (age != '' && userName != '') {
-        fb_authenticate(userName, age)
-    } else {
-        alert('Please ensure you have filled out all input fields')
-        return;
-    }
-}
-
-//--------------------------------------------
-//fb_authenticate(_userName, _age)
-//Logs the user into firebase, signing them in with their google account.  
-//Then scrapes a bunch of their data, and writes it to their firebase profile.
-//Once logged in, changes HTML from the login page, to the game selection page.
-//Called:   from fb_login(), once user input has been validated
-//Input:    _userName - string, to be used in all communication with the user
-//          _age - numerical value, 
-//Return:   Writes user data to their profile on firebase. 
-//--------------------------------------------
-
-async function fb_authenticate(_userName, _age) {
-    console.log('fb_authenticate()')
-    // authenticate with Google
-    if (canLogIn) {
-        var authentication = firebase.auth().onAuthStateChanged((user) => {
-            var provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth().signInWithPopup(provider).then(function (result) {
-                // This gives you a Google Access Token.
-                var token = result.credential.accessToken;
-                // The signed-in user info.
-                user = result.user;
-            });
-            if (user) {
-                loggedin = true;
-                canLogIn = false;
-
-                console.log('loggedin')
-                console.log(user)
-                // User is signed in, see docs for a list of available properties
-                // https://firebase.google.com/docs/reference/js/v8/firebase.User
-
-                //Gets user data, and stores uid and username in session storage for later access
-                let uid = user.uid;
-                sessionStorage.setItem('uid', uid)
-                sessionStorage.setItem('userName', _userName)
-                let name = user.displayName;
-                let photoURL = user.photoURL;
-                let email = user.email;
-                let phoneNumber = user.phoneNumber;
-
-                authentication();
-
-                //checks user in not banned
-                fb_checkBan(user.uid)
-
-                //writes user data to their firebase profile
-                console.log('starting write')
-                firebase.database().ref('/userInfo/' + uid + '/userName').set(_userName)
-                firebase.database().ref('/userInfo/' + uid + '/uid').set(uid);
-                firebase.database().ref('/userInfo/' + uid + '/name').set(name);
-                firebase.database().ref('/userInfo/' + uid + '/photoURL').set(photoURL);
-                firebase.database().ref('/userInfo/' + uid + '/email').set(email);
-                firebase.database().ref('/userInfo/' + uid + '/phoneNumber').set(phoneNumber);
-                firebase.database().ref('/userInfo/' + uid + '/age').set(_age);
-
-                //changing HTML to the game selection and highscore page
-                document.getElementById('body').innerHTML = `<h1>Hello `+_userName+`</h1><img src="`+photoURL+`"><br>
-                <button onclick="window.location.href='planeGame.html'">Plane Game</button><br>
-                <button onclick="window.location.href='geoDash.html'">Geo Dash</button><br>
-                <button onclick="fb_readHighscore('geoDash')">Geo Dash Highscores</button><br>
-                <button onclick="fb_readHighscore('planeGame')">Plane Game Highscores</button>
-                <br><br><div id="output" style="background-color: #E5d4ed;padding-left: 25%;">`
-
-
-            } else {
-                console.log('not logged in')
-                loggedin = false;
-                canLogIn = true;
-                // User is signed out
-            }
-        });
-    }
-}*/
 
 //--------------------------------------------
 //fb_writeHighscore(_gameName, _score,)
