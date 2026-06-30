@@ -7,30 +7,57 @@
  **************************************************************
  **************************************************************/
 let canLogIn = true;
+
+//--------------------------------------------
+//redirectToGameSelection(_userName, _photoURL)
+//Redirects the user to the game selection page 
+//Called:   fb_signup() and fb_login() - after the user logs in/signs up
+//Input:    _userName   - String - the user's user name
+//          _photoURL   - String - link to the user's profile picture
+//Return:   Change the html of the page to game selection
+//--------------------------------------------
 function redirectToGameSelection(_userName, _photoURL) {
+    //checks if the user is on the banlist
+    fb_checkBan()
+
     //changing HTML to the game selection page
     document.getElementById('body').innerHTML = `
-                                    <h1>Hello ` + _userName + `</h1><img src="` + _photoURL + `" id="profilePicture"><br>
-                                    <button onclick="window.location.href='planeGame/planeGame.html'">Plane Game</button><br>
-                                    <button onclick="window.location.href='geoDash/geoDash.html'">Geo Dash</button><br>
-                                    <button onclick="fb_readHighscore('geoDash')">Geo Dash Highscores</button><br>
-                                    <button onclick="fb_readHighscore('planeGame')">Plane Game Highscores</button>
-                                    <br><br><div id="output" style="background-color: #E5d4ed;padding-left: 25%;">`
+                    <h1>Hello ` + _userName + `</h1><img src="` + _photoURL + `" id="profilePicture"><br>
+                    <button onclick="window.location.href='planeGame/planeGame.html'">Plane Game</button><br>
+                    <button onclick="window.location.href='geoDash/geoDash.html'">Geo Dash</button><br>
+                    <button onclick="fb_readHighscore('geoDash')">Geo Dash Highscores</button><br>
+                    <button onclick="fb_readHighscore('planeGame')">Plane Game Highscores</button>
+                    <br><br><div id="output" style="background-color: #E5d4ed;padding-left: 25%;">`
 }
+
+//--------------------------------------------
+//fb_signupHTML()
+//Changes the page HTML to the signup form
+//Called:   When the user tries to login without having an account
+//Input:    N/A
+//Return:   Changes the page HTML to the signup form
+//--------------------------------------------
 function fb_signupHTML() {
-    console.log('fb_signupHTML()')
     //changing HTML to signup page
     document.getElementById('body').innerHTML = `
-                                                <h1>You havn't signed up yet,<br> please fill out this form to continue</h1><br><br>
-                                                <form id="loginForm">
-                                                    <label for="userName">Please choose a username:<br>Note: Your username cannot include angle brackets, such as '>'</label><br>
-                                                    <input type="text" id="userName" name="userName" maxlength="20" /><br><br>
-
-                                                    <label for="age">How old are you</label><br>
-                                                    <input type="number" id="age" name="age" max="250" min="13" required /><br>
-                                                </form>
-                                                <button onclick="fb_signup()" id="googleButton"><img src="Images/signUpWithGoogle.png" id="googleButtonImg"></button>`;
+                    <h1>You havn't signed up yet,<br> please fill out this form to continue</h1><br><br>
+                    <form id="loginForm">
+                        <label for="userName">Please choose a username:<br>Note: Your username cannot include angle brackets, such as '>'</label><br>
+                        <input type="text" id="userName" name="userName" maxlength="20" /><br><br>
+                        <label for="age">How old are you</label><br>
+                        <input type="number" id="age" name="age" max="250" min="13" required /><br>
+                    </form>
+                    <button onclick="fb_signup()" id="googleButton"><img src="Images/signUpWithGoogle.png" id="googleButtonImg"></button>`;
 }
+
+//--------------------------------------------
+//fb_signup()
+//Gets user input from the signup form, and writes them to the firebase - then calls redirectToGameSelection()
+//Called:   When the user submits the signup form 
+//Input:    userName    - String, user input taken from HTML form
+//          age         - Numerical, user input taken from HTML form
+//Return:   Writes user data to the database
+//--------------------------------------------
 function fb_signup() {
     //get user input form HTML form
     let userName = document.getElementById('userName').value.trim();
@@ -40,7 +67,7 @@ function fb_signup() {
     if (userName.includes('<') || userName.includes('>')) {
         alert('You cannot have a username that includes < or >')
         return;
-    } else if(age < 13){
+    } else if (age < 13) {
         alert('You must be at least 13 to sign up');
         return;
     }
@@ -55,9 +82,7 @@ function fb_signup() {
         let email = sessionStorage.getItem('email')
         let phoneNumber = sessionStorage.getItem('phoneNumber')
 
-
         //writes user data to their firebase profile
-        console.log('starting write')
         firebase.database().ref('/userInfo/' + uid + '/userName').set(userName)
         firebase.database().ref('/userInfo/' + uid + '/uid').set(uid);
         firebase.database().ref('/userInfo/' + uid + '/name').set(name);
@@ -76,13 +101,19 @@ function fb_signup() {
     }
 }
 
-async function fb_loginV2(_uid) {
-    console.log('fb_loginV2')
+//--------------------------------------------
+//fb_login(_uid)
+//Reads the user's username and profile picture - If the user hasn't logged in before it detects it and calls fb_signup()
+//Called:   fb_authenticate(), after the user has been authenticated
+//Input:    _uid    - String, the user's uid, which is needed to read the user's data
+//Return:   Calls redirectToGameSelection() if the user has logged in before
+//          Calls fb_signupHTML() if the user hasn't logged in before
+//--------------------------------------------
+async function fb_login(_uid) {
     //reading user data to get username/profile picture
     let snapshot = await firebase.database().ref('/userInfo/' + _uid).once('value');
     let userInfo = snapshot.val()
 
-    console.log(userInfo)
     //checking to see if the user has signed up - if not redirect them to the signup page
     if (userInfo == null) {
         fb_signupHTML(_uid)
@@ -94,9 +125,16 @@ async function fb_loginV2(_uid) {
     }
 }
 
-async function fb_authenticateV2() {
-    console.log('fb_authenticateV2()')
-    // authenticate with Google  - inital 5 lines (lines 98 to 104) from firebase documentation: https://firebase.google.com/docs/auth/web/google-signin#handle_the_sign-in_flow_with_the_firebase_sdk 
+//--------------------------------------------
+//fb_authenticate()
+//Logs the user in with google in the database, and stores their data
+//Called:   When the user presses the Login with google button on the landing page 
+//Input:    N/A
+//Return:   Signs the user in to firebase, stores their data in session storage, and calls fb_login()
+//--------------------------------------------
+async function fb_authenticate() {
+    // authenticate with Google  - inital 5 lines (lines 138 to 144) 
+    // from firebase documentation: https://firebase.google.com/docs/auth/web/google-signin#handle_the_sign-in_flow_with_the_firebase_sdk 
     if (canLogIn) {
         var authentication = firebase.auth().onAuthStateChanged((user) => {
             var provider = new firebase.auth.GoogleAuthProvider();
@@ -107,12 +145,8 @@ async function fb_authenticateV2() {
                 user = result.user;
             });
             if (user) {
-
                 loggedin = true;
                 canLogIn = false;
-
-                console.log('loggedin')
-                console.log(user)
 
                 //setting user data to session storage for later
                 sessionStorage.setItem('uid', user.uid)
@@ -122,12 +156,11 @@ async function fb_authenticateV2() {
                 sessionStorage.setItem('email', user.email)
                 sessionStorage.setItem('phoneNumber', user.phoneNumber)
 
-                fb_loginV2(user.uid)
+                fb_login(user.uid)
             } else {
-                console.log('not logged in')
+                //user not logged in
                 loggedin = false;
                 canLogIn = true;
-                // User is signed out
             }
         });
     }
@@ -143,8 +176,6 @@ async function fb_authenticateV2() {
 //Return:   If the user has achieved a new highscore, writes that to the highscoer branch of firebase, otherwise nothing
 //--------------------------------------------
 async function fb_writeHighscore(_gameName, _score,) {
-    console.log('fb_writeHighscore()')
-
     //get the user ID - needed for the firebase read/write
     let uid = sessionStorage.getItem('uid')
 
@@ -156,6 +187,7 @@ async function fb_writeHighscore(_gameName, _score,) {
     //read the users current highscore - if this is the users first time playing, their current highscore is 0
     let scoreSnapshot = await firebase.database().ref('/' + _gameName + 'Highscore/' + uid + '/score').once('value');
     let currentScore;
+    //checks if the user has played before
     if (scoreSnapshot.exists()) {
         let scoreSnapshotValue = scoreSnapshot.val();
         currentScore = scoreSnapshotValue;
@@ -165,7 +197,6 @@ async function fb_writeHighscore(_gameName, _score,) {
 
     //checks that the new score is actually a highscore - and then overwrites with the new highscore
     if (_score >= currentScore || currentScore == null) {
-        console.log('writing')
         firebase.database().ref('/' + _gameName + 'Highscore/' + uid + '/userName').set(userName);
         firebase.database().ref('/' + _gameName + 'Highscore/' + uid + '/score').set(_score);
     }
@@ -179,7 +210,6 @@ async function fb_writeHighscore(_gameName, _score,) {
 //Return:   Boolean
 //--------------------------------------------
 async function fb_checkBan(_userUID) {
-    console.log('fb_checkBan()')
     //reads the banlist, 
     let snapshot = await firebase.database().ref('/banlist/' + _userUID).once('value');
     let banned = snapshot.val();
@@ -200,7 +230,6 @@ async function fb_checkBan(_userUID) {
 //Return:   Displays the top 5 highscores, and the user's in the HTML
 //--------------------------------------------
 async function fb_readHighscore(_gameName) {
-    console.log('fb_readHighscore()')
     //reads every users highscore for the game
     let snapshot = await firebase.database().ref('/' + _gameName + 'Highscore').once('value');
     let highscoreSnapshot = snapshot.val();
@@ -216,7 +245,6 @@ async function fb_readHighscore(_gameName) {
     }
     //sorts the array on score, to get the alltime highscores
     highscoreTable.sort((a, b) => b.score - a.score)
-    console.log(highscoreTable)
 
     //resets output area
     let output = document.getElementById('output');
@@ -233,7 +261,6 @@ async function fb_readHighscore(_gameName) {
     output.innerText = '\n\nYour Score: ' + currentUserHighscore + '\n\n The Top 5 Highscores are:\n';
 
     //displays the top 5 highscores from all players
-    console.log(highscoreTable.length)
     for (i = 0; i < 5 && i < highscoreTable.length; i++) {
         output.innerText += `\n` + highscoreTable[i].userName + `: ` + highscoreTable[i].score;
     }
