@@ -209,14 +209,17 @@ async function fb_writeHighscore(_gameName, _score,) {
 //Input:    _userUID - the current user's UID
 //Return:   Boolean
 //--------------------------------------------
-async function fb_checkBan(_userUID) {
+async function fb_checkBan() {
+    let _userUID = sessionStorage.getItem('uid')
     //reads the banlist, 
     let snapshot = await firebase.database().ref('/banlist/' + _userUID).once('value');
     let banned = snapshot.val();
+
+    console.log(banned)
     //Checks if the user is on the banlist, if they are it prevetns login, and redirects them
     if (banned != null) {
-        return true;
         window.location.href = 'https://en.wikipedia.org/wiki/Hacker';
+        return true;
     } else {
         return false;
     }

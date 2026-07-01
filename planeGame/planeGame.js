@@ -1,6 +1,5 @@
 console.log("planeGame.js")
 
-
 //defining variables 
 let gameState = "menu";
 let throttle = 0.5;
