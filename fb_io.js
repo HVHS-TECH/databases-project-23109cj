@@ -64,6 +64,11 @@ function fb_signup() {
     let age = document.getElementById('age').value.trim();
 
     //validate the user input
+    if(age == '' && userName == ''){
+        alert('Please ensure you have filled out all input fields');
+        return
+    }
+
     if (userName.includes('<') || userName.includes('>')) {
         alert('You cannot have a username that includes < or >')
         return;
@@ -94,11 +99,7 @@ function fb_signup() {
         //changing HTML to the game selection and highscore page
         redirectToGameSelection(userName, photoURL)
 
-    } else {
-        //tells user if there is an error in their input
-        alert('Please ensure you have filled out all input fields')
-        return;
-    }
+    } 
 }
 
 //--------------------------------------------
@@ -133,7 +134,7 @@ async function fb_login(_uid) {
 //Return:   Signs the user in to firebase, stores their data in session storage, and calls fb_login()
 //--------------------------------------------
 async function fb_authenticate() {
-    // authenticate with Google  - inital 5 lines (lines 138 to 144) 
+    // authenticate with Google  - inital 5 lines (lines 140 to 146) 
     // from firebase documentation: https://firebase.google.com/docs/auth/web/google-signin#handle_the_sign-in_flow_with_the_firebase_sdk 
     if (canLogIn) {
         var authentication = firebase.auth().onAuthStateChanged((user) => {
