@@ -216,7 +216,6 @@ async function fb_checkBan() {
     let snapshot = await firebase.database().ref('/banlist/' + _userUID).once('value');
     let banned = snapshot.val();
 
-    console.log(banned)
     //Checks if the user is on the banlist, if they are it prevetns login, and redirects them
     if (banned != null) {
         window.location.href = 'https://en.wikipedia.org/wiki/Hacker';
